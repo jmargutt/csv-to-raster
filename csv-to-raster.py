@@ -58,12 +58,8 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     # step_lon = meters_to_longitude(resolution, df.latitude.mean())
     # step_lat = meters_to_latitude(resolution)
     df['step_lon'], df['step_lat'] = zip(*df.apply(calculate_tile_bbox, axis=1))
-    step_lon = df['step_lon'].mean()
-    # step_lat = df['step_lat'].mean()
-    step_lat = meters_to_latitude(resolution)
-
-    # boundaries csv 3.8637646883620302 5.9766803
-    # boundaries csv 3.855605966794129 5.9766803
+    step_lon = df['step_lon'].median()
+    step_lat = df['step_lat'].median()
 
     # get minimum latitude and longitude
     lat_min = df.latitude.min()
@@ -91,7 +87,6 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     transform = from_origin(lon_min - step_lon * 0.5,
                             df.latitude.max() + step_lat * 0.5,
                             step_lon, step_lat)
-    print("boundaries", df.latitude.min(), df.latitude.max() + step_lat * 0.5)
     if os.path.exists(output_raster):
         os.remove(output_raster)
     new_raster = rasterio.open(output_raster, 'w', driver='GTiff',
@@ -108,8 +103,6 @@ def calculate_error(df_in, df_out):
     df_in = pd.read_csv(df_in)
     df_out = pd.read_csv(df_out)
     df_out.columns = ['longitude', 'latitude', 'rwi']
-
-    print("boundaries csv", df_out.latitude.min(), df_out.latitude.max())
 
     df_out = df_out.dropna(subset=['rwi']).reset_index(drop=True)
     dist = pd.DataFrame()
@@ -155,7 +148,6 @@ if __name__ == "__main__":
 
         os.system(rf'C:\Users\JMargutti\Anaconda3\envs\typhoon\Library\bin\gdal_translate.exe '
                   rf'-of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
-        # except:
         if not os.path.exists(output_filepath_table):
             os.system(rf'gdal_translate -of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
 
