@@ -75,7 +75,6 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     arr = np.empty((size_lat, size_lon))
     arr[:] = np.nan
 
-    # loop over the csv file and fill the array
     for ix, row in df.iterrows():
         dlat = abs(row['latitude'] - lat_min)
         dlon = abs(row['longitude'] - lon_min)
@@ -90,6 +89,8 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
                             df.latitude.max() + step_lat * 0.5,
                             step_lon, step_lat)
     print("boundaries", df.latitude.min(), df.latitude.max() + step_lat * 0.5)
+    if os.path.exists(output_raster):
+        os.remove(output_raster)
     new_raster = rasterio.open(output_raster, 'w', driver='GTiff',
                                height=arr.shape[0], width=arr.shape[1],
                                count=1, dtype=str(arr.dtype),
@@ -104,6 +105,9 @@ def calculate_error(df_in, df_out):
     df_in = pd.read_csv(df_in)
     df_out = pd.read_csv(df_out)
     df_out.columns = ['longitude', 'latitude', 'rwi']
+
+    print("boundaries csv", df_out.latitude.min(), df_out.latitude.max())
+
     df_out = df_out.dropna(subset=['rwi']).reset_index(drop=True)
     dist = pd.DataFrame()
     for ix, row in tqdm(df_in.iterrows(), total=df_in.shape[0]):
@@ -143,12 +147,15 @@ if __name__ == "__main__":
         print(f"calculating errors")
         # execute command gdal_translate
         output_filepath_table = output_filepath.replace('.tif', '.csv')
-        # try:
+        if os.path.exists(output_filepath_table):
+            os.remove(output_filepath_table)
+
         os.system(rf'C:\Users\JMargutti\Anaconda3\envs\typhoon\Library\bin\gdal_translate.exe '
                   rf'-of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
         # except:
         if not os.path.exists(output_filepath_table):
             os.system(rf'gdal_translate -of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
+
         dist = calculate_error(input_filepath, output_filepath_table)
         dist_all = dist_all.append(pd.Series({'file': file,
                                               'mean_err_lat_deg': dist['err_lat_deg'].mean(),
