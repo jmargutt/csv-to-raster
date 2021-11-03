@@ -57,7 +57,7 @@ def csv_to_raster(input_csv, output_raster, resolution=2400):
     # calculate raster cell size
     # step_lon = meters_to_longitude(resolution, df.latitude.mean())
     # step_lat = meters_to_latitude(resolution)
-    df['step_lon'], df['step_lat'] = zip(*df.apply(calculate_tile_bbox, axis=0))
+    df['step_lon'], df['step_lat'] = zip(*df.apply(calculate_tile_bbox, axis=1))
     step_lon = df['step_lon'].mean()
     step_lat = df['step_lat'].mean()
 
