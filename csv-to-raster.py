@@ -141,8 +141,11 @@ if __name__ == "__main__":
         print(f"calculating errors")
         # execute command gdal_translate
         output_filepath_table = output_filepath.replace('.tif', '.csv')
-        os.system(rf'C:\Users\JMargutti\Anaconda3\envs\typhoon\Library\bin\gdal_translate.exe '
-                  rf'-of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
+        try:
+            os.system(rf'C:\Users\JMargutti\Anaconda3\envs\typhoon\Library\bin\gdal_translate.exe '
+                      rf'-of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
+        except:
+            os.system(rf'gdal_translate -of xyz -co ADD_HEADER_LINE=YES -co COLUMN_SEPARATOR="," {output_filepath} {output_filepath_table}')
         dist = calculate_error(input_filepath, output_filepath_table)
         dist_all = dist_all.append(pd.Series({'file': file,
                                               'mean_err_lat_deg': dist['err_lat_deg'].mean(),
