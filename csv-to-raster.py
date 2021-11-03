@@ -59,8 +59,10 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     # step_lat = meters_to_latitude(resolution)
     df['step_lon'], df['step_lat'] = zip(*df.apply(calculate_tile_bbox, axis=1))
     step_lon = df['step_lon'].mean()
-    # step_lat = df['step_lat'].mean()
+    step_lat = df['step_lat'].mean()
+    print(f'before: {step_lat}')
     step_lat = meters_to_latitude(resolution)
+    print(f'after: {step_lat}')
 
     # get minimum latitude and longitude
     lat_min = df.latitude.min()
