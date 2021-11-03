@@ -60,9 +60,7 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     df['step_lon'], df['step_lat'] = zip(*df.apply(calculate_tile_bbox, axis=1))
     step_lon = df['step_lon'].mean()
     step_lat = df['step_lat'].mean()
-    print(f'before: {step_lat}')
-    step_lat = meters_to_latitude(resolution)
-    print(f'after: {step_lat}')
+    # step_lat = meters_to_latitude(resolution)
 
     # get minimum latitude and longitude
     lat_min = df.latitude.min()
@@ -91,6 +89,7 @@ def csv_to_raster(input_csv, output_raster, resolution=2445.98490512564):
     transform = from_origin(lon_min - step_lon * 0.5,
                             df.latitude.max() + step_lat * 0.5,
                             step_lon, step_lat)
+    print("boundaries", df.latitude.min(), df.latitude.max() + step_lat * 0.5)
     new_raster = rasterio.open(output_raster, 'w', driver='GTiff',
                                height=arr.shape[0], width=arr.shape[1],
                                count=1, dtype=str(arr.dtype),
