@@ -111,9 +111,9 @@ def calculate_error(df_in, df_out):
         lon = row['longitude']
         df_out['dist'] = np.sqrt(np.power(df_out['latitude']-lat, 2) + np.power(df_out['longitude']-lon, 2))
         idxmin = df_out['dist'].idxmin()
-        min_err_lat = df_out.iloc[idxmin]['latitude'] - lat
+        min_err_lat = abs(df_out.iloc[idxmin]['latitude'] - lat)
         min_err_lat_m = latitude_to_meters(min_err_lat)
-        min_err_lon = df_out.iloc[idxmin]['longitude'] - lon
+        min_err_lon = abs(df_out.iloc[idxmin]['longitude'] - lon)
         min_err_lon_m = longitude_to_meters(min_err_lon, lat)
 
         dist = dist.append(pd.Series({'latitude': lat,
